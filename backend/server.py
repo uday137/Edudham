@@ -715,6 +715,57 @@ async def get_all_users(current_user: Dict = Depends(get_current_user)):
     return [UserResponse(**user) for user in users]
 
 # Include router
+
+@api_router.put("/admin/users/{user_id}")
+async def update_user(
+    user_id: str,
+    name: Optional[str] = None,
+    email: Optional[str] = None,
+    password: Optional[str] = None,
+    university_id: Optional[str] = None,
+    current_user: Dict = Depends(get_current_user)
+):
+    if current_user['role'] != 'admin':
+        raise HTTPException(status_code=403, detail="Admin only")
+    
+    update_data = {}
+    if name:
+        update_data['name'] = name
+    if email:
+        # Check if email is already taken
+        existing = await db.users.find_one({"email": email, "id": {"$ne": user_id}}, {"_id": 0})
+        if existing:
+            raise HTTPException(status_code=400, detail="Email already in use")
+        update_data['email'] = email
+    if password:
+        update_data['password_hash'] = hash_password(password)
+    if university_id is not None:
+        update_data['university_id'] = university_id
+    
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No data to update")
+    
+    result = await db.users.update_one({"id": user_id}, {"$set": update_data})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"message": "User updated successfully"}
+
+@api_router.delete("/admin/users/{user_id}")
+async def delete_user(user_id: str, current_user: Dict = Depends(get_current_user)):
+    if current_user['role'] != 'admin':
+        raise HTTPException(status_code=403, detail="Admin only")
+    
+    # Prevent admin from deleting themselves
+    if user_id == current_user['user_id']:
+        raise HTTPException(status_code=400, detail="Cannot delete your own account")
+    
+    result = await db.users.delete_one({"id": user_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"message": "User deleted successfully"}
+
 app.include_router(api_router)
 
 app.add_middleware(
