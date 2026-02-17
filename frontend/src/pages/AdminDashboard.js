@@ -626,6 +626,7 @@ const UsersTab = () => {
   const [universities, setUniversities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -662,10 +663,24 @@ const UsersTab = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.createUser(formData);
-      toast.success('Manager added successfully!');
+      if (editingUser) {
+        const updateData = {
+          name: formData.name,
+          email: formData.email,
+          university_id: formData.university_id,
+        };
+        if (formData.password) {
+          updateData.password = formData.password;
+        }
+        await api.updateUser(editingUser.id, updateData);
+        toast.success('Manager updated successfully!');
+      } else {
+        await api.createUser(formData);
+        toast.success('Manager added successfully!');
+      }
       fetchUsers();
       setShowAddForm(false);
+      setEditingUser(null);
       setFormData({
         name: '',
         email: '',
@@ -674,7 +689,31 @@ const UsersTab = () => {
         university_id: '',
       });
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to add manager');
+      toast.error(error.response?.data?.detail || 'Failed to save manager');
+    }
+  };
+
+  const handleEdit = (user) => {
+    setEditingUser(user);
+    setFormData({
+      name: user.name,
+      email: user.email,
+      password: '',
+      role: 'manager',
+      university_id: user.university_id || '',
+    });
+    setShowAddForm(true);
+  };
+
+  const handleDelete = async (userId) => {
+    if (!window.confirm('Are you sure you want to delete this manager?')) return;
+    
+    try {
+      await api.deleteUser(userId);
+      toast.success('Manager deleted successfully!');
+      fetchUsers();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to delete manager');
     }
   };
 
@@ -685,7 +724,7 @@ const UsersTab = () => {
           <h1 className="text-3xl font-bold text-secondary">University Managers</h1>
           <p className="text-muted-foreground">Manage university manager accounts</p>
         </div>
-        <Button onClick={() => setShowAddForm(!showAddForm)} data-testid="add-manager-button">
+        <Button onClick={() => { setShowAddForm(!showAddForm); setEditingUser(null); setFormData({ name: '', email: '', password: '', role: 'manager', university_id: '' }); }} data-testid="add-manager-button">
           <Plus className="w-4 h-4 mr-2" />
           Add Manager
         </Button>
@@ -694,7 +733,7 @@ const UsersTab = () => {
       {showAddForm && (
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Add University Manager</CardTitle>
+            <CardTitle>{editingUser ? 'Edit Manager' : 'Add University Manager'}</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
@@ -720,13 +759,13 @@ const UsersTab = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Password *</Label>
+                <Label>Password {editingUser && '(leave blank to keep current)'}</Label>
                 <Input
                   data-testid="manager-password"
                   type="password"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  required
+                  required={!editingUser}
                 />
               </div>
 
@@ -750,10 +789,10 @@ const UsersTab = () => {
               </div>
 
               <div className="col-span-2 flex gap-2">
-                <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
+                <Button type="button" variant="outline" onClick={() => { setShowAddForm(false); setEditingUser(null); }}>
                   Cancel
                 </Button>
-                <Button type="submit" data-testid="submit-manager">Submit</Button>
+                <Button type="submit" data-testid="submit-manager">{editingUser ? 'Update' : 'Submit'}</Button>
               </div>
             </form>
           </CardContent>
@@ -778,6 +817,7 @@ const UsersTab = () => {
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>University</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -788,6 +828,16 @@ const UsersTab = () => {
                       <TableCell className="font-medium">{user.name}</TableCell>
                       <TableCell>{user.email}</TableCell>
                       <TableCell>{uni?.name || 'N/A'}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" onClick={() => handleEdit(user)} data-testid={`edit-user-${user.id}`}>
+                            Edit
+                          </Button>
+                          <Button size="sm" variant="destructive" onClick={() => handleDelete(user.id)} data-testid={`delete-user-${user.id}`}>
+                            Delete
+                          </Button>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
