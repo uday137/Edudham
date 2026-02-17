@@ -538,6 +538,25 @@ async def update_application_status(
         raise HTTPException(status_code=403, detail="Unauthorized")
     
     # Get application
+
+@api_router.delete("/applications/{application_id}")
+async def delete_application(application_id: str, current_user: Dict = Depends(get_current_user)):
+    if current_user['role'] not in ['admin', 'manager']:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+    
+    # Get application
+    application = await db.applications.find_one({"id": application_id}, {"_id": 0})
+    if not application:
+        raise HTTPException(status_code=404, detail="Application not found")
+    
+    # Check if manager has access
+    if current_user['role'] == 'manager' and application['university_id'] != current_user.get('university_id'):
+        raise HTTPException(status_code=403, detail="You can only delete your own university's applications")
+    
+    await db.applications.delete_one({"id": application_id})
+    
+    return {"message": "Application deleted"}
+
     application = await db.applications.find_one({"id": application_id}, {"_id": 0})
     if not application:
         raise HTTPException(status_code=404, detail="Application not found")
