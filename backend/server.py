@@ -415,6 +415,82 @@ async def delete_university(university_id: str, current_user: Dict = Depends(get
     
     return {"message": "University deleted"}
 
+@api_router.get("/universities/{university_id}/applications/export")
+async def export_university_applications(university_id: str, current_user: Dict = Depends(get_current_user)):
+    if current_user['role'] not in ['admin', 'manager']:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+    
+    # Check authorization for manager
+    if current_user['role'] == 'manager' and current_user.get('university_id') != university_id:
+        raise HTTPException(status_code=403, detail="You can only export your own university's applications")
+    
+    # Get university name
+    university = await db.universities.find_one({"id": university_id}, {"_id": 0})
+    if not university:
+        raise HTTPException(status_code=404, detail="University not found")
+    
+    # Get applications
+    applications = await db.applications.find({"university_id": university_id}, {"_id": 0}).to_list(10000)
+    
+    # Create Excel workbook
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Applications"
+    
+    # Headers
+    headers = ['Name', 'Email', 'Phone', 'University Name', 'Course Interest', 'Short Note', 'Date', 'Status']
+    ws.append(headers)
+    
+    # Style headers
+    header_fill = PatternFill(start_color="EA580C", end_color="EA580C", fill_type="solid")
+    header_font = Font(bold=True, color="FFFFFF")
+    
+    for cell in ws[1]:
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal='center', vertical='center')
+    
+    # Add data
+    for app in applications:
+        created_date = datetime.fromisoformat(app['created_at']).strftime('%Y-%m-%d %H:%M')
+        ws.append([
+            app['name'],
+            app['email'],
+            app['phone'],
+            app['university_name'],
+            app['course_interest'],
+            app['short_note'],
+            created_date,
+            app['status']
+        ])
+    
+    # Adjust column widths
+    for column in ws.columns:
+        max_length = 0
+        column = list(column)
+        for cell in column:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(cell.value)
+            except:
+                pass
+        adjusted_width = min(max_length + 2, 50)
+        ws.column_dimensions[column[0].column_letter].width = adjusted_width
+    
+    # Save to BytesIO
+    output = BytesIO()
+    wb.save(output)
+    output.seek(0)
+    
+    uni_name = university['name'].replace(' ', '_')
+    filename = f"{uni_name}_applications.xlsx"
+    
+    return StreamingResponse(
+        output,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
 # ============ APPLICATION ENDPOINTS ============
 
 @api_router.post("/applications", response_model=ApplicationResponse)
