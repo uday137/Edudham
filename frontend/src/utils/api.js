@@ -142,6 +142,21 @@ export const api = {
     });
     return response.data;
   },
+
+  updateUser: async (userId, data) => {
+    const response = await axios.put(`${API_URL}/admin/users/${userId}`, null, {
+      headers: getAuthHeader(),
+      params: data,
+    });
+    return response.data;
+  },
+
+  deleteUser: async (userId) => {
+    const response = await axios.delete(`${API_URL}/admin/users/${userId}`, {
+      headers: getAuthHeader(),
+    });
+    return response.data;
+  },
 };
 
 export default api;
