@@ -94,6 +94,10 @@ class FeeStructure(BaseModel):
     duration: str
     annual_fee: float
 
+class CourseDescription(BaseModel):
+    course_name: str
+    description: str
+
 class University(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -103,6 +107,7 @@ class University(BaseModel):
     photo_gallery: List[str] = []
     description: str
     courses_offered: List[str] = []
+    course_descriptions: List[CourseDescription] = []
     fee_structure: List[FeeStructure] = []
     placement_percentage: float
     rating: float = 0.0
@@ -117,6 +122,7 @@ class UniversityCreate(BaseModel):
     photo_gallery: List[str] = []
     description: str
     courses_offered: List[str] = []
+    course_descriptions: List[CourseDescription] = []
     fee_structure: List[FeeStructure] = []
     placement_percentage: float
     rating: float = 0.0
