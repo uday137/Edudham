@@ -80,11 +80,29 @@ export const api = {
     return response.data;
   },
 
+  deleteApplication: async (id) => {
+    const response = await axios.delete(`${API_URL}/applications/${id}`, {
+      headers: getAuthHeader(),
+    });
+    return response.data;
+  },
+
   exportApplicationsExcel: async () => {
     const response = await axios.get(`${API_URL}/applications/export/excel`, {
       headers: getAuthHeader(),
       responseType: 'blob',
     });
+    return response.data;
+  },
+
+  exportUniversityApplicationsExcel: async (universityId) => {
+    const response = await axios.get(
+      `${API_URL}/universities/${universityId}/applications/export`,
+      {
+        headers: getAuthHeader(),
+        responseType: 'blob',
+      }
+    );
     return response.data;
   },
 
