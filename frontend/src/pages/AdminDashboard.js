@@ -523,6 +523,16 @@ const ApplicationsTab = () => {
     }
   };
 
+  const handleStatusChange = async (applicationId, newStatus) => {
+    try {
+      await api.updateApplicationStatus(applicationId, newStatus);
+      toast.success('Status updated successfully!');
+      fetchApplications();
+    } catch (error) {
+      toast.error('Failed to update status');
+    }
+  };
+
   return (
     <div>
       <div className="mb-8 flex items-center justify-between">
@@ -553,6 +563,7 @@ const ApplicationsTab = () => {
                   <TableHead>Course</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Date</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -564,16 +575,39 @@ const ApplicationsTab = () => {
                     <TableCell>{app.university_name}</TableCell>
                     <TableCell>{app.course_interest}</TableCell>
                     <TableCell>
-                      <span className={`px-2 py-1 rounded-full text-xs ${
-                        app.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                        app.status === 'accepted' ? 'bg-green-100 text-green-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
-                        {app.status}
-                      </span>
+                      <Select
+                        value={app.status}
+                        onValueChange={(value) => handleStatusChange(app.id, value)}
+                      >
+                        <SelectTrigger className="w-32" data-testid={`status-${app.id}`}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="completed">Completed</SelectItem>
+                          <SelectItem value="cancelled">Cancelled</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                     <TableCell>
                       {new Date(app.created_at).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          if (window.confirm('Delete this application?')) {
+                            api.deleteApplication(app.id).then(() => {
+                              toast.success('Application deleted');
+                              fetchApplications();
+                            }).catch(() => toast.error('Failed to delete'));
+                          }
+                        }}
+                        data-testid={`delete-app-${app.id}`}
+                      >
+                        Delete
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
