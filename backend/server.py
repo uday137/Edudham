@@ -136,6 +136,7 @@ class UniversityUpdate(BaseModel):
     photo_gallery: Optional[List[str]] = None
     description: Optional[str] = None
     courses_offered: Optional[List[str]] = None
+    course_descriptions: Optional[List[CourseDescription]] = None
     fee_structure: Optional[List[FeeStructure]] = None
     placement_percentage: Optional[float] = None
     rating: Optional[float] = None
