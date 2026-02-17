@@ -183,17 +183,31 @@ const UniversityDetailPage = () => {
                     {university.courses_offered.length === 0 ? (
                       <p className="text-muted-foreground">No courses listed</p>
                     ) : (
-                      <div className="grid grid-cols-2 gap-3">
-                        {university.courses_offered.map((course, idx) => (
-                          <div
-                            key={idx}
-                            className="p-4 border border-border rounded-lg hover:border-primary transition-colors"
-                            data-testid={`course-${idx}`}
-                          >
-                            <GraduationCap className="w-5 h-5 text-primary mb-2" />
-                            <div className="font-semibold">{course}</div>
-                          </div>
-                        ))}
+                      <div className="space-y-4">
+                        {university.courses_offered.map((course, idx) => {
+                          const courseDesc = university.course_descriptions?.find(
+                            (cd) => cd.course_name === course
+                          );
+                          return (
+                            <div
+                              key={idx}
+                              className="p-4 border border-border rounded-lg hover:border-primary transition-colors"
+                              data-testid={`course-${idx}`}
+                            >
+                              <div className="flex items-start gap-3">
+                                <GraduationCap className="w-5 h-5 text-primary mt-1" />
+                                <div className="flex-1">
+                                  <div className="font-semibold text-lg mb-1">{course}</div>
+                                  {courseDesc && (
+                                    <p className="text-sm text-muted-foreground leading-relaxed">
+                                      {courseDesc.description}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </CardContent>
