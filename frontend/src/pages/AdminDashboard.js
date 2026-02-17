@@ -225,6 +225,7 @@ const UniversitiesTab = () => {
   const [universities, setUniversities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingUniversity, setEditingUniversity] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     location: '',
@@ -252,19 +253,30 @@ const UniversitiesTab = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.createUniversity({
-        ...formData,
-        placement_percentage: parseFloat(formData.placement_percentage),
-        rating: parseFloat(formData.rating),
-        photo_gallery: [],
-        courses_offered: [],
-        fee_structure: [],
-        tags: [],
-        contact_details: {},
-      });
-      toast.success('University added successfully!');
+      if (editingUniversity) {
+        await api.updateUniversity(editingUniversity.id, {
+          ...formData,
+          placement_percentage: parseFloat(formData.placement_percentage),
+          rating: parseFloat(formData.rating),
+        });
+        toast.success('University updated successfully!');
+      } else {
+        await api.createUniversity({
+          ...formData,
+          placement_percentage: parseFloat(formData.placement_percentage),
+          rating: parseFloat(formData.rating),
+          photo_gallery: [],
+          courses_offered: [],
+          course_descriptions: [],
+          fee_structure: [],
+          tags: [],
+          contact_details: {},
+        });
+        toast.success('University added successfully!');
+      }
       fetchUniversities();
       setShowAddForm(false);
+      setEditingUniversity(null);
       setFormData({
         name: '',
         location: '',
@@ -274,7 +286,49 @@ const UniversitiesTab = () => {
         rating: '',
       });
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to add university');
+      toast.error(error.response?.data?.detail || 'Failed to save university');
+    }
+  };
+
+  const handleEdit = (university) => {
+    setEditingUniversity(university);
+    setFormData({
+      name: university.name,
+      location: university.location,
+      main_photo: university.main_photo,
+      description: university.description,
+      placement_percentage: university.placement_percentage,
+      rating: university.rating,
+    });
+    setShowAddForm(true);
+  };
+
+  const handleDelete = async (universityId) => {
+    if (!window.confirm('Are you sure you want to delete this university?')) return;
+    
+    try {
+      await api.deleteUniversity(universityId);
+      toast.success('University deleted successfully!');
+      fetchUniversities();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to delete university');
+    }
+  };
+
+  const handleDownloadExcel = async (universityId, universityName) => {
+    try {
+      const blob = await api.exportUniversityApplicationsExcel(universityId);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${universityName.replace(' ', '_')}_applications_${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success('Excel file downloaded successfully!');
+    } catch (error) {
+      toast.error('Failed to download Excel');
     }
   };
 
@@ -285,7 +339,7 @@ const UniversitiesTab = () => {
           <h1 className="text-3xl font-bold text-secondary">Universities</h1>
           <p className="text-muted-foreground">Manage all universities</p>
         </div>
-        <Button onClick={() => setShowAddForm(!showAddForm)} data-testid="add-university-button">
+        <Button onClick={() => { setShowAddForm(!showAddForm); setEditingUniversity(null); setFormData({ name: '', location: '', main_photo: '', description: '', placement_percentage: '', rating: '' }); }} data-testid="add-university-button">
           <Plus className="w-4 h-4 mr-2" />
           Add University
         </Button>
@@ -294,7 +348,7 @@ const UniversitiesTab = () => {
       {showAddForm && (
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Add New University</CardTitle>
+            <CardTitle>{editingUniversity ? 'Edit University' : 'Add New University'}</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
@@ -369,10 +423,10 @@ const UniversitiesTab = () => {
               </div>
 
               <div className="col-span-2 flex gap-2">
-                <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
+                <Button type="button" variant="outline" onClick={() => { setShowAddForm(false); setEditingUniversity(null); }}>
                   Cancel
                 </Button>
-                <Button type="submit" data-testid="submit-university">Submit</Button>
+                <Button type="submit" data-testid="submit-university">{editingUniversity ? 'Update' : 'Submit'}</Button>
               </div>
             </form>
           </CardContent>
@@ -398,6 +452,7 @@ const UniversitiesTab = () => {
                   <TableHead>Location</TableHead>
                   <TableHead>Rating</TableHead>
                   <TableHead>Placement %</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -407,6 +462,19 @@ const UniversitiesTab = () => {
                     <TableCell>{uni.location}</TableCell>
                     <TableCell>{uni.rating}</TableCell>
                     <TableCell>{uni.placement_percentage}%</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" onClick={() => handleEdit(uni)} data-testid={`edit-uni-${uni.id}`}>
+                          Edit
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => handleDownloadExcel(uni.id, uni.name)} data-testid={`download-uni-${uni.id}`}>
+                          <Download className="w-3 h-3" />
+                        </Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleDelete(uni.id)} data-testid={`delete-uni-${uni.id}`}>
+                          Delete
+                        </Button>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
