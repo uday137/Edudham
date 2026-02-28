@@ -1,0 +1,137 @@
+{
+  "identity": {
+    "name": "Edu Dham",
+    "persona": "The Modern Academic",
+    "tone": "Authoritative yet Accessible, High-Energy, Trustworthy",
+    "description": "A premier university discovery platform for Uttar Pradesh, bridging the gap between students and their future through a clean, data-first interface."
+  },
+  "palette": {
+    "primary": {
+      "DEFAULT": "#EA580C",
+      "foreground": "#FFFFFF",
+      "hover": "#C2410C",
+      "description": "Burnt Orange - Used for Primary Actions (Apply Now, Search), Brand Highlights"
+    },
+    "secondary": {
+      "DEFAULT": "#0F172A",
+      "foreground": "#FFFFFF",
+      "description": "Deep Slate - Used for Headings, Footer, High-Contrast Sections"
+    },
+    "background": {
+      "DEFAULT": "#FAFAF9",
+      "paper": "#FFFFFF",
+      "subtle": "#F5F5F4",
+      "description": "Warm Stone/Paper - Avoids the sterility of pure white. Use #FFFFFF for cards/tables."
+    },
+    "accent": {
+      "DEFAULT": "#0D9488",
+      "foreground": "#FFFFFF",
+      "description": "Teal - Used strictly for 'Success' metrics (Placement %, Verified badges)"
+    },
+    "destructive": {
+      "DEFAULT": "#EF4444",
+      "foreground": "#FFFFFF"
+    },
+    "muted": {
+      "DEFAULT": "#F1F5F9",
+      "foreground": "#64748B"
+    },
+    "border": "#E2E8F0"
+  },
+  "typography": {
+    "headings": {
+      "family": "Outfit",
+      "url": "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap",
+      "weights": ["400", "600", "700"],
+      "usage": "All Headings (h1-h6), Big Stats, Navigation Links"
+    },
+    "body": {
+      "family": "DM Sans",
+      "url": "https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;700&display=swap",
+      "weights": ["400", "500"],
+      "usage": "Paragraphs, Table Data, Form Inputs, Small Labels"
+    }
+  },
+  "layout": {
+    "radius": "0.375rem",
+    "spacing_scale": "conservative",
+    "container": {
+      "max_width": "1280px",
+      "padding": "2rem"
+    },
+    "grid_strategy": "Bento (Asymmetric)",
+    "dashboard_strategy": "Dense (Sidebar + Topbar)"
+  },
+  "components": {
+    "Button": {
+      "base": "font-medium transition-all active:scale-95 shadow-sm hover:shadow-md",
+      "primary": "bg-primary text-primary-foreground hover:bg-primary/90",
+      "outline": "border-2 border-primary text-primary hover:bg-primary/10",
+      "ghost": "hover:bg-slate-100 text-slate-700"
+    },
+    "Card": {
+      "base": "bg-white border border-border shadow-sm hover:shadow-md transition-shadow duration-300",
+      "header": "p-6 pb-2",
+      "content": "p-6 pt-2"
+    },
+    "Input": {
+      "base": "bg-white border-border focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+    },
+    "Badge": {
+      "base": "font-semibold tracking-wide uppercase text-[10px]",
+      "success": "bg-teal-100 text-teal-800 border-teal-200"
+    }
+  },
+  "images": {
+    "hero": {
+      "url": "https://images.unsplash.com/photo-1680084521806-b408d976e3e7?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "alt": "Modern University Campus",
+      "usage": "Home Page Hero Background (with overlay)"
+    },
+    "students": [
+      {
+        "url": "https://images.unsplash.com/photo-1591062182630-2cae7655ed1b?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Students Discussing",
+        "usage": "About Section / Student Portal Login"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1558023598-0afa967eac90?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Happy Group of Students",
+        "usage": "Testimonials / Success Stories"
+      }
+    ],
+    "abstract": {
+      "url": "https://images.unsplash.com/photo-1770520215481-2e1839893ff5?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "alt": "Orange Abstract Patterns",
+      "usage": "Auth Page Backgrounds / section dividers"
+    },
+    "placeholders": {
+      "university": "https://images.unsplash.com/photo-1764943630631-b63aadf86e19?crop=entropy&cs=srgb&fm=jpg&q=85"
+    }
+  },
+  "icons": {
+    "library": "lucide-react",
+    "instructions": "Use Lucide icons for all UI elements. Use simple, thin strokes (stroke-width={1.5}) for a modern look."
+  },
+  "features": {
+    "excel_export": {
+      "library": "xlsx",
+      "instruction": "Use 'xlsx' library to generate downloadable Excel sheets for applications."
+    },
+    "search": {
+      "behavior": "Live filtering. As user types, results update immediately. Debounce input by 300ms.",
+      "filters": ["Location", "Course Type", "Fee Range", "Placement %"]
+    }
+  },
+  "universal_guidelines": [
+    "DO NOT use gradients for the primary orange. Keep it flat and bold.",
+    "Use 'Inter' or 'DM Sans' for body text, 'Outfit' for headings. Import them in index.css.",
+    "Always override Shadcn's default 'radius' to 0.375rem (rounded-md) in tailwind config.",
+    "For the Dashboard: Sidebar navigation on the left, white background for the main content area, gray (slate-50) for the dashboard background.",
+    "For the Landing Page: Use ample whitespace. Don't crowd the university cards.",
+    "University Cards must show: Image, Name, Location, Fee Range, and a prominent 'Apply Now' button.",
+    "Admin Panel must have a 'Download All Applications' button prominently displayed.",
+    "University Manager Dashboard must ONLY show data for their assigned university."
+  ],
+  "instructions_to_main_agent": "1. Install fonts via Google Fonts in index.css. 2. Configure tailwind.config.js with the custom colors. 3. Build the Layouts (PublicLayout, AdminLayout, ManagerLayout). 4. Implement the 'Apply Now' modal with form validation. 5. Build the Excel export utility."
+}

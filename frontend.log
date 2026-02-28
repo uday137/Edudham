@@ -1,0 +1,44 @@
+
+> frontend@0.1.0 start
+> craco start
+
+(node:1475) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:1475) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+Starting the development server...
+
+Failed to compile.
+
+Module not found: Error: Can't resolve 'next-themes' in '/Users/apple/.gemini/antigravity/scratch/Edudham/frontend/src/components/ui'
+WARNING in [eslint] 
+src/pages/ManagerDashboard.js
+  Line 138:6:  React Hook useEffect has missing dependencies: 'fetchApplications' and 'fetchUniversity'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/UniversityDetailPage.js
+  Line 19:6:  React Hook useEffect has a missing dependency: 'fetchUniversity'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+ERROR in ./src/components/ui/sonner.jsx 5:0-39
+Module not found: Error: Can't resolve 'next-themes' in '/Users/apple/.gemini/antigravity/scratch/Edudham/frontend/src/components/ui'
+
+webpack compiled with 1 error and 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/pages/ManagerDashboard.js
+  Line 138:6:  React Hook useEffect has missing dependencies: 'fetchApplications' and 'fetchUniversity'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/UniversityDetailPage.js
+  Line 19:6:  React Hook useEffect has a missing dependency: 'fetchUniversity'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/pages/ManagerDashboard.js
+  Line 138:6:  React Hook useEffect has missing dependencies: 'fetchApplications' and 'fetchUniversity'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/UniversityDetailPage.js
+  Line 19:6:  React Hook useEffect has a missing dependency: 'fetchUniversity'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
