@@ -36,8 +36,13 @@ JWT_EXPIRATION_HOURS = 24
 # Master OTP Email
 MASTER_EMAIL = os.environ.get('MASTER_EMAIL', 'admin@edudham.com')
 
-# Create the main app
-app = FastAPI()
+# Create the main app without public docs in production
+ENV = os.environ.get('ENV', 'production')
+app = FastAPI(
+    docs_url="/docs" if ENV == 'development' else None,
+    redoc_url="/redoc" if ENV == 'development' else None,
+    openapi_url="/openapi.json" if ENV == 'development' else None,
+)
 api_router = APIRouter(prefix="/api")
 security = HTTPBearer()
 
@@ -279,23 +284,40 @@ async def update_homepage_config(
 # ============ AUTH ENDPOINTS ============
 
 @api_router.post("/auth/register")
-async def register(user_data: UserCreate):
+async def register(
+    user_data: UserCreate,
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(HTTPBearer(auto_error=False))
+):
+    # Admin and manager roles can only be created by an existing admin
+    if user_data.role in ['admin', 'manager']:
+        if not credentials:
+            raise HTTPException(status_code=403, detail="Only admins can create admin or manager accounts")
+        try:
+            current_user = decode_token(credentials.credentials)
+            if current_user.get('role') != 'admin':
+                raise HTTPException(status_code=403, detail="Only admins can create admin or manager accounts")
+        except HTTPException:
+            raise HTTPException(status_code=403, detail="Only admins can create admin or manager accounts")
+
+    # Force role to 'student' for public self-registration
+    safe_role = user_data.role if user_data.role in ['admin', 'manager'] else 'student'
+
     existing = await db.users.find_one({"email": user_data.email}, {"_id": 0})
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
-    
+
     user = User(
         email=user_data.email,
         password_hash=hash_password(user_data.password),
         name=user_data.name,
-        role=user_data.role,
+        role=safe_role,
         university_id=user_data.university_id
     )
-    
+
     await db.users.insert_one(user.model_dump())
-    
+
     token = create_token(user.id, user.email, user.role, user.university_id)
-    
+
     return {
         "token": token,
         "user": UserResponse(
