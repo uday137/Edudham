@@ -17,20 +17,19 @@ const UniversityDetailPage = () => {
   const [applyModalOpen, setApplyModalOpen] = useState(false);
 
   useEffect(() => {
+    const fetchUniversity = async () => {
+      try {
+        const data = await api.getUniversity(id);
+        setUniversity(data);
+      } catch (error) {
+        console.error('Error fetching university:', error);
+        toast.error('Failed to load university details');
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchUniversity();
   }, [id]);
-
-  const fetchUniversity = async () => {
-    try {
-      const data = await api.getUniversity(id);
-      setUniversity(data);
-    } catch (error) {
-      console.error('Error fetching university:', error);
-      toast.error('Failed to load university details');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) {
     return (
