@@ -1156,6 +1156,25 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+@app.on_event("startup")
+async def startup_db_client():
+    """On startup, create the default admin user if no admin exists yet."""
+    existing_admin = await db.users.find_one({"role": "admin"}, {"_id": 0})
+    if not existing_admin:
+        admin_email    = os.environ.get("ADMIN_EMAIL", "admin@edudham.com")
+        admin_password = os.environ.get("ADMIN_PASSWORD", "Admin@123")
+        admin_name     = os.environ.get("ADMIN_NAME", "Admin")
+        admin = User(
+            email=admin_email,
+            password_hash=hash_password(admin_password),
+            name=admin_name,
+            role="admin",
+        )
+        await db.users.insert_one(admin.model_dump())
+        logger.info(f"✅ Default admin created: {admin_email}")
+    else:
+        logger.info("✅ Admin user already exists — skipping seed.")
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
