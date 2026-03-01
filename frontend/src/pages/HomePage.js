@@ -43,8 +43,14 @@ const HomePage = () => {
   const [selectedUniversity, setSelectedUniversity] = useState(null);
   const universitiesSectionRef = useRef(null);
 
-  // Hero config state
-  const [heroConfig, setHeroConfig] = useState(DEFAULT_HERO);
+  // Hero config state — seed from localStorage cache to eliminate flash of default content
+  const [heroConfig, setHeroConfig] = useState(() => {
+    try {
+      const cached = localStorage.getItem('edudham_hero_config');
+      if (cached) return { ...DEFAULT_HERO, ...JSON.parse(cached) };
+    } catch (e) { /* ignore */ }
+    return DEFAULT_HERO;
+  });
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
@@ -75,7 +81,12 @@ const HomePage = () => {
   const fetchHeroConfig = async () => {
     try {
       const data = await api.getHomepageConfig();
-      if (data) setHeroConfig({ ...DEFAULT_HERO, ...data });
+      if (data) {
+        const merged = { ...DEFAULT_HERO, ...data };
+        setHeroConfig(merged);
+        // Cache for next page load — eliminates flash of default content
+        try { localStorage.setItem('edudham_hero_config', JSON.stringify(merged)); } catch (e) { /* ignore */ }
+      }
     } catch (error) {
       console.error('Error fetching hero config:', error);
     }
