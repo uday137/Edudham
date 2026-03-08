@@ -9,14 +9,14 @@
             }
         }
     ],
-    "routes": [
+    "rewrites": [
         {
-            "src": "/api/(.*)",
-            "dest": "https://edudham-production.up.railway.app/api/$1"
+            "source": "/api/(.*)",
+            "destination": "https://edudham-production.up.railway.app/api/$1"
         },
         {
-            "src": "/(.*)",
-            "dest": "/index.html"
+            "source": "/(.*)",
+            "destination": "/index.html"
         }
     ]
 }
