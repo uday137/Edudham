@@ -1,7 +1,12 @@
 import axios from 'axios';
 
-const API_URL = `${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'}/api`;
+const getBaseUrl = () => {
+  if (process.env.REACT_APP_BACKEND_URL) return process.env.REACT_APP_BACKEND_URL;
+  // If we are on edudham.com, hit the proxy. If on localhost, hit local dev server.
+  return window.location.hostname === 'localhost' ? 'http://localhost:8000' : '';
+};
 
+const API_URL = `${getBaseUrl()}/api`;
 const getAuthHeader = () => {
   const token = localStorage.getItem('token');
   return token ? { Authorization: `Bearer ${token}` } : {};
