@@ -11,8 +11,8 @@
     ],
     "rewrites": [
         {
-            "source": "/api/(.*)",
-            "destination": "https://edudham-production.up.railway.app/api/$1"
+            "source": "/api/:match*",
+            "destination": "https://edudham-production.up.railway.app/api/:match*"
         },
         {
             "source": "/(.*)",
