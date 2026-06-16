@@ -10,6 +10,8 @@ import LoginPage from '@/pages/LoginPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import AdminDashboard from '@/pages/AdminDashboard';
 import ManagerDashboard from '@/pages/ManagerDashboard';
+import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage';
+import TermsAndConditionsPage from '@/pages/TermsAndConditionsPage';
 
 // Context
 import { AuthProvider, useAuth } from '@/context/AuthContext';
@@ -48,6 +50,8 @@ function App() {
             <Route path="/university/:id" element={<UniversityDetailPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+            <Route path="/terms-and-conditions" element={<TermsAndConditionsPage />} />
             <Route
               path="/admin/*"
               element={

@@ -149,6 +149,13 @@ const HomePage = () => {
       });
     }
 
+    // Sort so that featured items come first (1, 2, 3...)
+    filtered.sort((a, b) => {
+      const aPos = a.featured_position ? Number(a.featured_position) : 999;
+      const bPos = b.featured_position ? Number(b.featured_position) : 999;
+      return aPos - bPos;
+    });
+
     return filtered;
   }, [universities, searchQuery, filters]);
 
@@ -255,16 +262,18 @@ const HomePage = () => {
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               opacity: i === currentSlide ? 1 : 0,
-              transition: 'opacity 1.2s ease-in-out',
-              // subtle Ken Burns zoom on active slide
-              transform: i === currentSlide ? 'scale(1.04)' : 'scale(1)',
+              // subtle Ken Burns zoom on active slide with hardware acceleration
+              transform: i === currentSlide ? 'scale(1.04) translateZ(0)' : 'scale(1) translateZ(0)',
               transitionProperty: 'opacity, transform',
               transitionDuration: '1.2s, 8s',
+              transitionTimingFunction: 'ease-in-out, linear',
+              willChange: 'opacity, transform',
+              pointerEvents: 'none',
             }}
           />
         ))}
         {/* Overlay */}
-        <div className="absolute inset-0 bg-secondary/75" style={{ zIndex: 1 }} />
+        <div className="absolute inset-0 bg-secondary/75 pointer-events-none" style={{ zIndex: 1 }} />
 
         <div className="relative max-w-7xl mx-auto px-6 text-center" style={{ zIndex: 2 }}>
           {/* Title + subtitle collapse when searching */}
@@ -525,15 +534,32 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Footer — conditionally shown */}
-      {heroConfig.show_footer && (
-        <footer className="bg-secondary text-white py-8">
-          <div className="max-w-7xl mx-auto px-6 text-center">
-            <p className="text-sm">© {new Date().getFullYear()} {heroConfig.site_name || 'Edu Dham'}. All rights reserved.</p>
-            <p className="text-sm text-gray-400 mt-2">Connecting students with their dream universities</p>
+      {/* Footer */}
+      <footer className="bg-secondary text-white py-8">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              {heroConfig.logo_url ? (
+                <img
+                  src={heroConfig.logo_url}
+                  alt={heroConfig.site_name || 'Logo'}
+                  style={{ height: '32px', width: '32px', objectFit: 'contain', borderRadius: '8px' }}
+                />
+              ) : (
+                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                  <GraduationCap className="w-4 h-4 text-white" />
+                </div>
+              )}
+              <span className="font-semibold">{heroConfig.site_name || 'Edu Dham'}</span>
+            </div>
+            <div className="flex items-center gap-6 text-sm text-gray-400">
+              <Link to="/privacy-policy" className="hover:text-primary transition-colors">Privacy Policy</Link>
+              <Link to="/terms-and-conditions" className="hover:text-primary transition-colors">Terms & Conditions</Link>
+            </div>
+            <p className="text-sm text-gray-400">© {new Date().getFullYear()} {heroConfig.site_name || 'Edu Dham'}. All rights reserved.</p>
           </div>
-        </footer>
-      )}
+        </div>
+      </footer>
 
       {/* Apply Modal */}
       <ApplyModal
